@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'presentation/pages/login_page.dart';
+import 'package:provider/provider.dart';
+import 'presentation/bloc/cart_provider.dart';
+import 'presentation/pages/shop.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -21,6 +31,16 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const LoginPage(),
+      title: 'Luxury Shop',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFD81B60),
+          primary: const Color(0xFFD81B60),
+        ),
+        useMaterial3: true,
+      ),
+      home: const ShopPage(),
     );
   }
 }
