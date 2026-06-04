@@ -21,11 +21,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: "L'Amour Shop",
       title: "L'amor Login",
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFE91E63),
+        ),
+        fontFamily: 'Roboto',
+        useMaterial3: true,
+      ),
           primary: const Color(0xFFE91E63),
         ),
         useMaterial3: true,
