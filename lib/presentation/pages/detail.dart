@@ -253,18 +253,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                 ],
               ),
             ),
+            const SizedBox(height: 32),
           ],
         ),
       ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
-          border: Border(
-            top: BorderSide(
-              color: Color(0xFFF1F1F3),
-              width: 1.0,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -4),
             ),
-          ),
+          ],
         ),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: SafeArea(
