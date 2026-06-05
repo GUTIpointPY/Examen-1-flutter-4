@@ -46,24 +46,10 @@ class ProductDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Hero Image Section
-            Center(
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: 320,
-                color: imgBgColor,
-                child: Hero(
-                  tag: 'product-image-${product.id}',
-                  child: Image.asset(
-                    product.imagePath,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: Colors.grey[200],
-                      child: const Icon(Icons.image, size: 64, color: Colors.grey),
-                    ),
-                  ),
-                ),
-              ),
+            // Product Image Carousel Section
+            ProductImageCarousel(
+              product: product,
+              backgroundColor: imgBgColor,
             ),
 
             // Product Details
@@ -259,6 +245,109 @@ class _DetailAddToCartButtonState extends State<_DetailAddToCartButton> with Sin
           ),
         ),
       ),
+    );
+  }
+}
+
+class ProductImageCarousel extends StatefulWidget {
+  final CartItem product;
+  final Color backgroundColor;
+
+  const ProductImageCarousel({
+    super.key,
+    required this.product,
+    required this.backgroundColor,
+  });
+
+  @override
+  State<ProductImageCarousel> createState() => _ProductImageCarouselState();
+}
+
+class _ProductImageCarouselState extends State<ProductImageCarousel> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<String> images = [
+      widget.product.imagePath,
+      // Use different variations of the existing assets to simulate a carousel
+      widget.product.id == '2' 
+          ? 'assets/images/rose_blindfold.png' 
+          : 'assets/images/soy_candle.png',
+      widget.product.imagePath,
+    ];
+
+    return Column(
+      children: [
+        Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: 340,
+              color: widget.backgroundColor,
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+                itemCount: images.length,
+                itemBuilder: (context, index) {
+                  final imageWidget = Image.asset(
+                    images[index],
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.image, size: 64, color: Colors.grey),
+                    ),
+                  );
+
+                  // Wrap only the first page with Hero to smoothly transition from the shop page
+                  if (index == 0) {
+                    return Hero(
+                      tag: 'product-image-${widget.product.id}',
+                      child: imageWidget,
+                    );
+                  }
+
+                  return imageWidget;
+                },
+              ),
+            ),
+            // Carousel Indicator Dots
+            Positioned(
+              bottom: 16,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  images.length,
+                  (index) => AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    height: 8,
+                    width: _currentPage == index ? 24 : 8,
+                    decoration: BoxDecoration(
+                      color: _currentPage == index
+                          ? const Color(0xFFD81B60)
+                          : Colors.grey.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

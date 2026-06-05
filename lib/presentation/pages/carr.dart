@@ -99,7 +99,7 @@ class _CartScreenState extends State<CartScreen> {
           return Transform.scale(
             scale: val,
             child: Opacity(
-              opacity: val,
+              opacity: val.clamp(0.0, 1.0),
               child: child,
             ),
           );
