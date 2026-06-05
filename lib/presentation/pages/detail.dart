@@ -88,7 +88,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
           IconButton(
             icon: const Icon(
               Icons.favorite_border,
-              color: Color(0xFFD81B60),
+              color: Color(0xFFE91E63),
               size: 24,
             ),
             onPressed: () {},
@@ -132,7 +132,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                         style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFFD81B60),
+                          color: Color(0xFFE91E63),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -140,13 +140,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFD81B60).withValues(alpha: 0.08),
+                            color: const Color(0xFFE91E63).withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: const Text(
                             'BESTSELLER',
                             style: TextStyle(
-                              color: Color(0xFFD81B60),
+                              color: Color(0xFFE91E63),
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.5,
@@ -185,20 +185,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                     children: [
                       Expanded(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF8F9FA),
-                            borderRadius: BorderRadius.circular(12),
+                            color: const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 'MATERIAL',
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.grey[500],
+                                  color: Color(0xFF94A3B8),
                                   letterSpacing: 0.5,
                                 ),
                               ),
@@ -208,7 +208,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF2C2C2C),
+                                  color: Color(0xFF1E293B),
                                 ),
                               ),
                             ],
@@ -218,20 +218,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                       const SizedBox(width: 16),
                       Expanded(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF8F9FA),
-                            borderRadius: BorderRadius.circular(12),
+                            color: const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 'RUN TIME',
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.grey[500],
+                                  color: Color(0xFF94A3B8),
                                   letterSpacing: 0.5,
                                 ),
                               ),
@@ -241,7 +241,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF2C2C2C),
+                                  color: Color(0xFF1E293B),
                                 ),
                               ),
                             ],
@@ -273,33 +273,43 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
               // Quantity Selector
               Container(
                 height: 50,
+                width: 120,
                 decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
-                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.remove, size: 16, color: Color(0xFF2C2C2C)),
-                      onPressed: () {
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
                         if (_quantity > 1) {
                           setState(() => _quantity--);
                         }
                       },
+                      child: const Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: Icon(Icons.remove, size: 16, color: Color(0xFF64748B)),
+                      ),
                     ),
                     Text(
                       '$_quantity',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF2C2C2C),
+                        color: Color(0xFF1E293B),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.add, size: 16, color: Color(0xFF2C2C2C)),
-                      onPressed: () {
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
                         setState(() => _quantity++);
                       },
+                      child: const Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: Icon(Icons.add, size: 16, color: Color(0xFF64748B)),
+                      ),
                     ),
                   ],
                 ),
@@ -323,7 +333,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                         SnackBar(
                           content: Text('${_quantity}x $displayName added to cart!'),
                           duration: const Duration(seconds: 2),
-                          backgroundColor: const Color(0xFFD81B60),
+                          backgroundColor: const Color(0xFFE91E63),
                         ),
                       );
                     },
@@ -331,11 +341,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> with SingleTicker
                     child: Container(
                       height: 50,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFD81B60),
-                        borderRadius: BorderRadius.circular(10),
+                        color: const Color(0xFFE91E63),
+                        borderRadius: BorderRadius.circular(8),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFD81B60).withValues(alpha: 0.3),
+                            color: const Color(0xFFE91E63).withValues(alpha: 0.35),
                             blurRadius: 16,
                             offset: const Offset(0, 8),
                           ),
@@ -398,14 +408,16 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
       widget.product.imagePath,
     ];
 
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Column(
       children: [
         Stack(
           alignment: Alignment.bottomCenter,
           children: [
             Container(
-              width: MediaQuery.of(context).size.width,
-              height: 340,
+              width: screenWidth,
+              height: screenWidth, // Perfectly square container to match screenshot layout
               color: widget.backgroundColor,
               child: PageView.builder(
                 controller: _pageController,
@@ -418,7 +430,7 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
                 itemBuilder: (context, index) {
                   final imageWidget = Image.asset(
                     images[index],
-                    fit: BoxFit.contain,
+                    fit: BoxFit.cover, // Cover layout to fill the square container
                     errorBuilder: (context, error, stackTrace) => Container(
                       color: Colors.grey[200],
                       child: const Icon(Icons.image, size: 64, color: Colors.grey),
@@ -448,12 +460,12 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
                     duration: const Duration(milliseconds: 300),
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     height: 8,
-                    width: _currentPage == index ? 24 : 8,
+                    width: 8, // Fully circular dots instead of expandable pills
                     decoration: BoxDecoration(
                       color: _currentPage == index
-                          ? const Color(0xFFD81B60)
+                          ? const Color(0xFFE91E63)
                           : Colors.white.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(4),
+                      shape: BoxShape.circle,
                     ),
                   ),
                 ),
