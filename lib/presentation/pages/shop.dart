@@ -322,7 +322,7 @@ class _ShopPageState extends State<ShopPage> {
   // ─────────────────────────────────────────────
   Widget _buildCategoryTabs() {
     return Container(
-      color: Colors.white,
+      color: Colors.transparent,
       height: 52,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -333,6 +333,7 @@ class _ShopPageState extends State<ShopPage> {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: ChoiceChip(
+              showCheckmark: false,
               label: Text(
                 _categories[index],
                 style: TextStyle(
@@ -348,7 +349,7 @@ class _ShopPageState extends State<ShopPage> {
                 color: isSelected ? _kPink : Colors.grey.shade300,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(8),
               ),
               onSelected: (_) {
                 setState(() => _selectedCategory = index);
