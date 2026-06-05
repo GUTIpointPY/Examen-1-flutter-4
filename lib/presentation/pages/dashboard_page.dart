@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_logo.dart';
+import 'shop.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -80,6 +81,18 @@ class DashboardPage extends StatelessWidget {
                         mainAxisSpacing: 16,
                         children: [
                           _buildQuickActionCard(
+                            icon: Icons.shopping_bag_outlined,
+                            title: "L'amour Shop",
+                            color: const Color(0xFFE91E63),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const ShopPage(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildQuickActionCard(
                             icon: Icons.shield_outlined,
                             title: 'Privacy Settings',
                             color: Colors.blue,
@@ -88,11 +101,6 @@ class DashboardPage extends StatelessWidget {
                             icon: Icons.history_rounded,
                             title: 'Recent Bills',
                             color: Colors.green,
-                          ),
-                          _buildQuickActionCard(
-                            icon: Icons.notifications_none_rounded,
-                            title: 'Alerts',
-                            color: Colors.orange,
                           ),
                           _buildQuickActionCard(
                             icon: Icons.support_agent_rounded,
@@ -140,43 +148,47 @@ class DashboardPage extends StatelessWidget {
     required IconData icon,
     required String title,
     required Color color,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              color: Color(0xFF1E293B),
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 24),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: const TextStyle(
+                color: Color(0xFF1E293B),
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
