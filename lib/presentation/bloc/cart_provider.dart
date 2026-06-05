@@ -52,12 +52,12 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
-  void addItem(CartItem item) {
+  void addItem(CartItem item, [int qty = 1]) {
     final index = _items.indexWhere((existing) => existing.id == item.id);
     if (index != -1) {
-      _items[index].quantity++;
+      _items[index].quantity += qty;
     } else {
-      _items.add(item.copyWith(quantity: 1));
+      _items.add(item.copyWith(quantity: qty));
     }
     notifyListeners();
   }
