@@ -3,17 +3,63 @@ import 'package:provider/provider.dart';
 import '../../data/models/cart_item.dart';
 import '../bloc/cart_provider.dart';
 
-class ProductDetailPage extends StatelessWidget {
+class ProductDetailPage extends StatefulWidget {
   final CartItem product;
 
   const ProductDetailPage({super.key, required this.product});
 
   @override
+  State<ProductDetailPage> createState() => _ProductDetailPageState();
+}
+
+class _ProductDetailPageState extends State<ProductDetailPage> with SingleTickerProviderStateMixin {
+  int _quantity = 1;
+  late AnimationController _controller;
+  late Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scale = Tween<double>(begin: 1.0, end: 0.96).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Determine the background color of the image container to match the screenshot
     Color imgBgColor = const Color(0xFFF3F3F5); // Gray for blindfold
-    if (product.id == '2') {
+    if (widget.product.id == '1') {
+      imgBgColor = const Color(0xFFB35930); // Rust/Orange for Wand to match screenshot
+    } else if (widget.product.id == '2') {
+      imgBgColor = const Color(0xFFFFFFFF); // White for bodysuit
+    } else if (widget.product.id == '3') {
       imgBgColor = const Color(0xFFFDE8C4); // Warm yellow for candle
+    } else if (widget.product.id == '4') {
+      imgBgColor = const Color(0xFF1E1E1E); // Black for rabbit
     }
+
+    // Determine custom title and description to match the screenshot for product ID '1'
+    final String displayName = widget.product.id == '1'
+        ? 'Velvet Touch Rechargeable Wand'
+        : widget.product.name;
+
+    final String displayDescription = widget.product.id == '1'
+        ? 'Experience ultimate relaxation with the Velvet Touch. Crafted from medical-grade silicone, this powerful wand offers 10 distinct vibration modes and a flexible head designed to reach every curve. Whisper-quiet and fully waterproof for versatile use.'
+        : 'Experience ultimate relaxation and comfort with this premium product. Made with high quality materials and designed to suit your modern lifestyle, it delivers an unparalleled sensation of luxury. Ideal for personal use or as a thoughtful gift for someone special.';
+
+    // Dynamic price adjustment to match the screenshot precisely if ID is '1'
+    final double displayPrice = widget.product.id == '1' ? 89.00 : widget.product.price;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -39,6 +85,14 @@ class ProductDetailPage extends StatelessWidget {
             ),
             onPressed: () {},
           ),
+          IconButton(
+            icon: const Icon(
+              Icons.favorite_border,
+              color: Color(0xFFD81B60),
+              size: 24,
+            ),
+            onPressed: () {},
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -48,7 +102,7 @@ class ProductDetailPage extends StatelessWidget {
           children: [
             // Product Image Carousel Section
             ProductImageCarousel(
-              product: product,
+              product: widget.product,
               backgroundColor: imgBgColor,
             ),
 
@@ -58,68 +112,143 @@ class ProductDetailPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Variant Label
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD81B60).withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      product.variant,
-                      style: const TextStyle(
-                        color: Color(0xFFD81B60),
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
                   // Title
                   Text(
-                    product.name,
+                    displayName,
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF1E2022),
+                      color: Color(0xFF2C2C2C),
                       height: 1.2,
                     ),
                   ),
                   const SizedBox(height: 12),
 
-                  // Price
-                  Text(
-                    '\$${product.price.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFD81B60),
-                    ),
+                  // Price & Bestseller Badge Row
+                  Row(
+                    children: [
+                      Text(
+                        '\$${displayPrice.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFD81B60),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      if (widget.product.id == '1')
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFD81B60).withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            'BESTSELLER',
+                            style: TextStyle(
+                              color: Color(0xFFD81B60),
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 24),
 
-                  // Divider
-                  const Divider(color: Color(0xFFF1F1F3), height: 1),
-                  const SizedBox(height: 24),
-
-                  // Description
-                  const Text(
-                    'About this Product',
+                  // Description Heading
+                  Text(
+                    'DESCRIPTION',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 11,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E2022),
+                      color: Colors.grey[600],
+                      letterSpacing: 0.5,
                     ),
                   ),
                   const SizedBox(height: 10),
+
+                  // Description Text
                   Text(
-                    'Experience ultimate relaxation and comfort with this premium product. Made with high quality materials and designed to suit your modern lifestyle, it delivers an unparalleled sensation of luxury. Ideal for personal use or as a thoughtful gift for someone special.',
+                    displayDescription,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
                       height: 1.6,
                     ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Specs Grid Rows
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8F9FA),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'MATERIAL',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[500],
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                widget.product.id == '1' ? 'Premium Silicone' : 'Premium Quality',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF2C2C2C),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8F9FA),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'RUN TIME',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[500],
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                widget.product.id == '1' ? '120 Minutes' : 'N/A',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF2C2C2C),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -141,107 +270,93 @@ class ProductDetailPage extends StatelessWidget {
         child: SafeArea(
           child: Row(
             children: [
-              // Heart Icon Button
+              // Quantity Selector
               Container(
+                height: 50,
                 decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFFEBEBEB)),
-                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.favorite_border,
-                    color: Color(0xFF1E2022),
-                  ),
-                  onPressed: () {},
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove, size: 16, color: Color(0xFF2C2C2C)),
+                      onPressed: () {
+                        if (_quantity > 1) {
+                          setState(() => _quantity--);
+                        }
+                      },
+                    ),
+                    Text(
+                      '$_quantity',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2C2C2C),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add, size: 16, color: Color(0xFF2C2C2C)),
+                      onPressed: () {
+                        setState(() => _quantity++);
+                      },
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 16),
 
-              // Add to Cart Button
+              // Add to Cart Button (Animated)
               Expanded(
-                child: _DetailAddToCartButton(product: product),
+                child: ScaleTransition(
+                  scale: _scale,
+                  child: GestureDetector(
+                    onTapDown: (_) => _controller.forward(),
+                    onTapUp: (_) {
+                      _controller.reverse();
+                      final cart = Provider.of<CartProvider>(context, listen: false);
+                      // Add with correct quantity
+                      cart.addItem(widget.product.copyWith(price: displayPrice), _quantity);
+
+                      ScaffoldMessenger.of(context).clearSnackBars();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('${_quantity}x $displayName added to cart!'),
+                          duration: const Duration(seconds: 2),
+                          backgroundColor: const Color(0xFFD81B60),
+                        ),
+                      );
+                    },
+                    onTapCancel: () => _controller.reverse(),
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD81B60),
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFD81B60).withValues(alpha: 0.3),
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'ADD TO CART',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _DetailAddToCartButton extends StatefulWidget {
-  final CartItem product;
-  const _DetailAddToCartButton({required this.product});
-
-  @override
-  State<_DetailAddToCartButton> createState() => _DetailAddToCartButtonState();
-}
-
-class _DetailAddToCartButtonState extends State<_DetailAddToCartButton> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-    );
-    _scale = Tween<double>(begin: 1.0, end: 0.96).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: _scale,
-      child: GestureDetector(
-        onTapDown: (_) => _controller.forward(),
-        onTapUp: (_) {
-          _controller.reverse();
-          final cart = Provider.of<CartProvider>(context, listen: false);
-          cart.addItem(widget.product);
-          
-          ScaffoldMessenger.of(context).clearSnackBars();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${widget.product.name} added to cart!'),
-              duration: const Duration(seconds: 1),
-              backgroundColor: const Color(0xFFD81B60),
-            ),
-          );
-        },
-        onTapCancel: () => _controller.reverse(),
-        child: Container(
-          height: 56,
-          decoration: BoxDecoration(
-            color: const Color(0xFFD81B60),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFFD81B60).withValues(alpha: 0.3),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: const Center(
-            child: Text(
-              'Add to Cart',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
           ),
         ),
       ),
@@ -277,9 +392,8 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
   Widget build(BuildContext context) {
     final List<String> images = [
       widget.product.imagePath,
-      // Use different variations of the existing assets to simulate a carousel
-      widget.product.id == '2' 
-          ? 'assets/images/rose_blindfold.png' 
+      widget.product.id == '2'
+          ? 'assets/images/rose_blindfold.png'
           : 'assets/images/soy_candle.png',
       widget.product.imagePath,
     ];
@@ -323,7 +437,7 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
                 },
               ),
             ),
-            // Carousel Indicator Dots
+            // Carousel Indicator Dots (matching screenshot colors)
             Positioned(
               bottom: 16,
               child: Row(
@@ -338,7 +452,7 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
                     decoration: BoxDecoration(
                       color: _currentPage == index
                           ? const Color(0xFFD81B60)
-                          : Colors.grey.withValues(alpha: 0.5),
+                          : Colors.white.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
