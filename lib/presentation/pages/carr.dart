@@ -110,7 +110,7 @@ class _CartScreenState extends State<CartScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFFD81B60).withOpacity(0.05),
+                color: const Color(0xFFD81B60).withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -674,7 +674,7 @@ class _CheckoutButtonState extends State<_CheckoutButton> with SingleTickerProvi
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFD81B60).withOpacity(0.3),
+                color: const Color(0xFFD81B60).withValues(alpha: 0.3),
                 blurRadius: 16,
                 offset: const Offset(0, 8),
               ),

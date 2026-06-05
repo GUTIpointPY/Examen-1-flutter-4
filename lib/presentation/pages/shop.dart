@@ -1,75 +1,92 @@
 import 'package:flutter/material.dart';
-// ─── Importar cuando existan las otras páginas ───
-// import 'detail.dart';  // Para navegar al detalle del producto
-// import 'carr.dart';     // Para navegar al carrito
-// import 'login.dart';    // Para navegar al login/perfil
+import 'package:provider/provider.dart';
+import '../../data/models/cart_item.dart';
+import '../bloc/cart_provider.dart';
+import 'carr.dart';
+import 'detail.dart';
 
 // ══════════════════════════════════════════════════════════════════
-// MODELO DE PRODUCTO (mover a models/ si se desea)
+// MODELO DE PRODUCTO (adaptador local sobre CartItem)
 // ══════════════════════════════════════════════════════════════════
 class Product {
+  final String id;
   final String name;
   final String category;
   final double price;
   final double? oldPrice;
-  final String imageUrl;
+  final String imagePath; // ruta de asset
   final bool isFavorite;
   final bool isSale;
 
   const Product({
+    required this.id,
     required this.name,
     required this.category,
     required this.price,
     this.oldPrice,
-    required this.imageUrl,
+    required this.imagePath,
     this.isFavorite = false,
     this.isSale = false,
   });
+
+  /// Convierte a CartItem para compatibilidad con CartProvider y DetailPage
+  CartItem toCartItem() => CartItem(
+        id: id,
+        name: name,
+        variant: category,
+        price: price,
+        imagePath: imagePath,
+      );
 }
 
 // ══════════════════════════════════════════════════════════════════
-// DATOS DE EJEMPLO
+// DATOS DE PRODUCTOS (usan las imágenes de assets del proyecto)
 // ══════════════════════════════════════════════════════════════════
 final List<Product> _allProducts = [
   const Product(
-    name: 'Velvet Touch Wand',
-    category: 'TOYS',
-    price: 49.99,
-    imageUrl: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&h=300&fit=crop',
-    isFavorite: false,
-  ),
-  const Product(
-    name: 'Midnight Lace Bodysuit',
-    category: 'LINGERIE',
-    price: 34.50,
-    imageUrl: 'https://images.unsplash.com/photo-1617331140180-e8262094733a?w=300&h=300&fit=crop',
+    id: '1',
+    name: 'Rose Petal Silk Blindfold',
+    category: 'ACCESSORIES',
+    price: 24.99,
+    imagePath: 'assets/images/rose_blindfold.png',
     isFavorite: true,
   ),
   const Product(
-    name: 'Santal Warming Oil',
+    id: '2',
+    name: 'Scented Soy Massage Candle',
     category: 'WELLNESS',
-    price: 18.00,
-    imageUrl: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=300&h=300&fit=crop',
+    price: 18.50,
+    imagePath: 'assets/images/soy_candle.png',
   ),
   const Product(
-    name: 'Silky Rabbit 2.0',
-    category: 'TOYS',
-    price: 55.00,
-    oldPrice: 75.00,
-    imageUrl: 'https://images.unsplash.com/photo-1559715541-5daf8a0296d0?w=300&h=300&fit=crop',
-    isSale: true,
-  ),
-  const Product(
+    id: '3',
     name: 'Rose Quartz Roller',
     category: 'WELLNESS',
     price: 22.00,
-    imageUrl: 'https://images.unsplash.com/photo-1590439471364-192aa70c0b53?w=300&h=300&fit=crop',
+    imagePath: 'assets/images/soy_candle.png',
   ),
   const Product(
-    name: 'Silk Chemise',
-    category: 'LINGERIE',
-    price: 42.00,
-    imageUrl: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=300&h=300&fit=crop',
+    id: '4',
+    name: 'Velvet Touch Set',
+    category: 'ACCESSORIES',
+    price: 49.99,
+    oldPrice: 65.00,
+    imagePath: 'assets/images/rose_blindfold.png',
+    isSale: true,
+  ),
+  const Product(
+    id: '5',
+    name: 'Midnight Musk Oil',
+    category: 'WELLNESS',
+    price: 32.00,
+    imagePath: 'assets/images/soy_candle.png',
+  ),
+  const Product(
+    id: '6',
+    name: 'Silk Eye Mask',
+    category: 'ACCESSORIES',
+    price: 19.99,
+    imagePath: 'assets/images/rose_blindfold.png',
   ),
 ];
 
@@ -77,8 +94,6 @@ final List<Product> _allProducts = [
 // CONSTANTES DE DISEÑO
 // ══════════════════════════════════════════════════════════════════
 const Color _kPink = Color(0xFFE91E63);
-const Color _kDarkPink = Color(0xFFC2185B);
-const Color _kLightPink = Color(0xFFFCE4EC);
 const Color _kBackground = Color(0xFFF5F5F5);
 const Color _kCardBg = Colors.white;
 const Color _kTextDark = Color(0xFF212121);
@@ -97,13 +112,14 @@ class ShopPage extends StatefulWidget {
 class _ShopPageState extends State<ShopPage> {
   int _selectedCategory = 0;
   int _currentNavIndex = 0;
-  final List<String> _categories = ['All', 'Toys', 'Lingerie', 'Wellness'];
 
-  // Productos favoritos (estado local)
+  final List<String> _categories = [
+    'All',
+    'Accessories',
+    'Wellness',
+  ];
+
   late List<bool> _favorites;
-
-  // ── Carrito simple (cantidad de items) ──
-  int _cartCount = 2;
 
   @override
   void initState() {
@@ -117,48 +133,29 @@ class _ShopPageState extends State<ShopPage> {
     return _allProducts.where((p) => p.category == cat).toList();
   }
 
-  // ── Acción al pulsar un producto ──
+  // ── Navegar al detalle del producto ──
   void _onProductTap(Product product) {
-    // TODO: Navegar a la página de detalle cuando esté lista
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (_) => DetailPage(product: product),
-    //   ),
-    // );
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Detalle de ${product.name} (pendiente)'),
-        backgroundColor: _kPink,
-        duration: const Duration(seconds: 1),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ProductDetailPage(product: product.toCartItem()),
       ),
     );
   }
 
-  // ── Acción al pulsar el carrito ──
+  // ── Navegar al carrito ──
   void _onCartTap() {
-    // TODO: Navegar a la página del carrito cuando esté lista
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (_) => const CartPage()),
-    // );
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Carrito (pendiente)'),
-        backgroundColor: _kPink,
-        duration: Duration(seconds: 1),
-      ),
-    );
+    Navigator.of(context).push(_createCartRoute());
   }
 
-  // ── Agregar al carrito ──
+  // ── Agregar al carrito usando CartProvider ──
   void _addToCart(Product product) {
-    setState(() {
-      _cartCount++;
-    });
+    final cart = Provider.of<CartProvider>(context, listen: false);
+    cart.addItem(product.toCartItem());
+
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${product.name} agregado al carrito'),
+        content: Text('${product.name} added to cart!'),
         backgroundColor: _kPink,
         duration: const Duration(seconds: 1),
       ),
@@ -174,15 +171,34 @@ class _ShopPageState extends State<ShopPage> {
 
   // ── Bottom nav ──
   void _onNavTap(int index) {
-    setState(() {
-      _currentNavIndex = index;
-    });
-    // TODO: Navegar según el índice
-    // if (index == 2) {
-    //   Navigator.push(context, MaterialPageRoute(builder: (_) => const CartPage()));
-    // } else if (index == 3) {
-    //   Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginPage()));
-    // }
+    setState(() => _currentNavIndex = index);
+    if (index == 2) {
+      Navigator.of(context).push(_createCartRoute());
+    }
+  }
+
+  // ── Transición animada al carrito ──
+  Route _createCartRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          const CartScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final slideTween = Tween(
+          begin: const Offset(0.0, 1.0),
+          end: Offset.zero,
+        ).chain(CurveTween(curve: Curves.easeInOutCubic));
+
+        return SlideTransition(
+          position: animation.drive(slideTween),
+          child: FadeTransition(
+            opacity: animation.drive(Tween<double>(begin: 0.0, end: 1.0)),
+            child: child,
+          ),
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 500),
+      reverseTransitionDuration: const Duration(milliseconds: 400),
+    );
   }
 
   // ══════════════════════════════════════════════════════════════
@@ -210,17 +226,18 @@ class _ShopPageState extends State<ShopPage> {
   // APP BAR personalizado
   // ─────────────────────────────────────────────
   Widget _buildAppBar() {
-    return Padding(
+    return Container(
+      color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
           // Logo + Nombre
-          const Icon(Icons.favorite, color: _kPink, size: 28),
+          const Icon(Icons.favorite, color: _kPink, size: 26),
           const SizedBox(width: 8),
           const Text(
-            "L'Amour",
+            "L'Amour Shop",
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: _kTextDark,
             ),
@@ -229,41 +246,51 @@ class _ShopPageState extends State<ShopPage> {
 
           // Buscar
           IconButton(
-            icon: const Icon(Icons.search, color: _kTextDark, size: 26),
-            onPressed: () {
-              // TODO: Implementar búsqueda
-            },
+            icon: const Icon(Icons.search, color: _kTextDark, size: 24),
+            onPressed: () {},
           ),
 
-          // Carrito con badge
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.shopping_bag_outlined, color: _kTextDark, size: 26),
-                onPressed: _onCartTap,
-              ),
-              if (_cartCount > 0)
-                Positioned(
-                  right: 4,
-                  top: 4,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: _kPink,
-                      shape: BoxShape.circle,
+          // Carrito con badge reactivo al CartProvider
+          Consumer<CartProvider>(
+            builder: (context, cartProvider, child) {
+              final count = cartProvider.items.fold<int>(
+                0,
+                (sum, i) => sum + i.quantity,
+              );
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.shopping_bag_outlined,
+                      color: _kTextDark,
+                      size: 24,
                     ),
-                    child: Text(
-                      '$_cartCount',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+                    onPressed: _onCartTap,
+                  ),
+                  if (count > 0)
+                    Positioned(
+                      right: 4,
+                      top: 4,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: _kPink,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '$count',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-            ],
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -274,11 +301,12 @@ class _ShopPageState extends State<ShopPage> {
   // TABS DE CATEGORÍA
   // ─────────────────────────────────────────────
   Widget _buildCategoryTabs() {
-    return SizedBox(
-      height: 48,
+    return Container(
+      color: Colors.white,
+      height: 52,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         itemCount: _categories.length,
         itemBuilder: (context, index) {
           final isSelected = _selectedCategory == index;
@@ -290,16 +318,17 @@ class _ShopPageState extends State<ShopPage> {
                 style: TextStyle(
                   color: isSelected ? Colors.white : _kTextDark,
                   fontWeight: FontWeight.w600,
+                  fontSize: 13,
                 ),
               ),
               selected: isSelected,
               selectedColor: _kPink,
               backgroundColor: Colors.white,
+              side: BorderSide(
+                color: isSelected ? _kPink : Colors.grey.shade300,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                side: BorderSide(
-                  color: isSelected ? _kPink : Colors.grey.shade300,
-                ),
               ),
               onSelected: (_) {
                 setState(() => _selectedCategory = index);
@@ -312,30 +341,32 @@ class _ShopPageState extends State<ShopPage> {
   }
 
   // ─────────────────────────────────────────────
-  // ENCABEZADO "Featured Products" + Filtros
+  // ENCABEZADO "Featured Products"
   // ─────────────────────────────────────────────
   Widget _buildSectionHeader() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Row(
         children: [
           const Text(
             'Featured Products',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: _kTextDark,
             ),
           ),
           const Spacer(),
           TextButton.icon(
-            onPressed: () {
-              // TODO: Mostrar filtros
-            },
-            icon: const Icon(Icons.tune, size: 18, color: _kPink),
+            onPressed: () {},
+            icon: const Icon(Icons.tune, size: 16, color: _kPink),
             label: const Text(
               'Filters',
-              style: TextStyle(color: _kPink, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: _kPink,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
             ),
           ),
         ],
@@ -348,18 +379,28 @@ class _ShopPageState extends State<ShopPage> {
   // ─────────────────────────────────────────────
   Widget _buildProductGrid() {
     final products = _filteredProducts;
+
+    if (products.isEmpty) {
+      return const Center(
+        child: Text(
+          'No products in this category',
+          style: TextStyle(color: _kTextGrey),
+        ),
+      );
+    }
+
     return GridView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      physics: const BouncingScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.58,
+        childAspectRatio: 0.60,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),
       itemCount: products.length,
       itemBuilder: (context, index) {
         final product = products[index];
-        // Encontrar el índice global para manejar favoritos
         final globalIndex = _allProducts.indexOf(product);
         return _ProductCard(
           product: product,
@@ -389,15 +430,15 @@ class _ShopPageState extends State<ShopPage> {
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home_filled),
-          label: 'Home',
+          label: 'Shop',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.menu),
-          label: 'Catalog',
+          icon: Icon(Icons.search),
+          label: 'Search',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.shopping_bag_outlined),
-          label: 'Orders',
+          label: 'Cart',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outline),
@@ -436,7 +477,7 @@ class _ProductCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -450,29 +491,32 @@ class _ProductCard extends StatelessWidget {
               flex: 5,
               child: Stack(
                 children: [
-                  // Imagen
+                  // Imagen del producto (asset)
                   ClipRRect(
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(16),
                     ),
-                    child: Container(
-                      width: double.infinity,
-                      color: const Color(0xFFF5E6D0),
-                      child: Image.network(
-                        product.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Center(
-                          child: Icon(
-                            Icons.image_outlined,
-                            size: 48,
-                            color: Colors.grey.shade400,
+                    child: Hero(
+                      tag: 'product-image-${product.id}',
+                      child: Container(
+                        width: double.infinity,
+                        color: const Color(0xFFF5E6D0),
+                        child: Image.asset(
+                          product.imagePath,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Center(
+                            child: Icon(
+                              Icons.image_outlined,
+                              size: 48,
+                              color: Colors.grey.shade400,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
 
-                  // Badge de SALE
+                  // Badge SALE
                   if (product.isSale)
                     Positioned(
                       top: 8,
@@ -497,7 +541,7 @@ class _ProductCard extends StatelessWidget {
                       ),
                     ),
 
-                  // Botón de favorito
+                  // Botón favorito
                   Positioned(
                     top: 8,
                     right: 8,
@@ -506,11 +550,11 @@ class _ProductCard extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.10),
                               blurRadius: 4,
                             ),
                           ],
@@ -550,7 +594,7 @@ class _ProductCard extends StatelessWidget {
                     // Nombre
                     Text(
                       product.name,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 13,
@@ -590,24 +634,7 @@ class _ProductCard extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       height: 32,
-                      child: OutlinedButton(
-                        onPressed: onAddToCart,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: _kPink,
-                          side: const BorderSide(color: _kPink),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: EdgeInsets.zero,
-                        ),
-                        child: const Text(
-                          'ADD TO CART',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                      child: _AddToCartButton(onPressed: onAddToCart),
                     ),
                   ],
                 ),
@@ -619,335 +646,64 @@ class _ProductCard extends StatelessWidget {
     );
   }
 }
-import 'package:provider/provider.dart';
-import '../../data/models/cart_item.dart';
-import '../bloc/cart_provider.dart';
-import 'carr.dart';
-import 'detail.dart';
 
-class ShopPage extends StatelessWidget {
-  const ShopPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    // Some sample products to showcase in the shop
-    final products = [
-      CartItem(
-        id: '1',
-        name: 'Rose Petal Silk Blindfold',
-        variant: 'Color: Midnight Black',
-        price: 24.99,
-        imagePath: 'assets/images/rose_blindfold.png',
-      ),
-      CartItem(
-        id: '2',
-        name: 'Scented Soy Massage Candle',
-        variant: 'Scent: Vanilla Musk',
-        price: 18.50,
-        imagePath: 'assets/images/soy_candle.png',
-      ),
-    ];
-
-    return Scaffold(
-      backgroundColor: const Color(0xFFF9F9FA),
-      appBar: AppBar(
-        title: const Text(
-          'Premium Shop',
-          style: TextStyle(
-            color: Color(0xFF1E2022),
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        actions: [
-          // Shopping Cart Icon with Badge
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(
-                  Icons.shopping_bag_outlined,
-                  color: Color(0xFF1E2022),
-                  size: 26,
-                ),
-                onPressed: () {
-                  // Navigate to carr.dart with custom animation
-                  Navigator.of(context).push(_createCartRoute());
-                },
-              ),
-              Positioned(
-                right: 8,
-                top: 8,
-                child: Consumer<CartProvider>(
-                  builder: (context, cartProvider, child) {
-                    if (cartProvider.items.isEmpty) return const SizedBox.shrink();
-                    
-                    // Simple animated scale badge for items
-                    return TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0.0, end: 1.0),
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.elasticOut,
-                      builder: (context, scale, child) {
-                        return Transform.scale(
-                          scale: scale,
-                          child: child,
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFE91E63), // Pink accent
-                          shape: BoxShape.circle,
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
-                        child: Text(
-                          '${cartProvider.items.fold(0, (sum, i) => sum + i.quantity)}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Explore Products',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF1E2022),
-                ),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Add luxury and comfort to your personal routines',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Expanded(
-                child: ListView.separated(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: products.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final product = products[index];
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ProductDetailPage(product: product),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.03),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            )
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            // Product Image with Hero Animation
-                            ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(16),
-                                bottomLeft: Radius.circular(16),
-                              ),
-                              child: Hero(
-                                tag: 'product-image-${product.id}',
-                                child: Image.asset(
-                                  product.imagePath,
-                                  width: 120,
-                                  height: 120,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) => Container(
-                                    width: 120,
-                                    height: 120,
-                                    color: Colors.grey[200],
-                                    child: const Icon(Icons.image, color: Colors.grey),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            // Details
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      product.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15,
-                                        color: Color(0xFF1E2022),
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      product.variant,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          '\$${product.price.toStringAsFixed(2)}',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                            color: Color(0xFFD81B60),
-                                          ),
-                                        ),
-                                        _AddToCartButton(product: product),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Custom route transition for going to the cart page
-  Route _createCartRoute() {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => const CartScreen(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(0.0, 1.0); // Slides up from bottom
-        const end = Offset.zero;
-        const curve = Curves.easeInOutCubic;
-
-        var slideTween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        var fadeTween = Tween<double>(begin: 0.0, end: 1.0);
-
-        return SlideTransition(
-          position: animation.drive(slideTween),
-          child: FadeTransition(
-            opacity: animation.drive(fadeTween),
-            child: child,
-          ),
-        );
-      },
-      transitionDuration: const Duration(milliseconds: 500),
-      reverseTransitionDuration: const Duration(milliseconds: 400),
-    );
-  }
-}
-
+// ══════════════════════════════════════════════════════════════════
+// BOTÓN ADD TO CART con animación de escala
+// ══════════════════════════════════════════════════════════════════
 class _AddToCartButton extends StatefulWidget {
-  final CartItem product;
-  const _AddToCartButton({required this.product});
+  final VoidCallback onPressed;
+  const _AddToCartButton({required this.onPressed});
 
   @override
   State<_AddToCartButton> createState() => _AddToCartButtonState();
 }
 
-class _AddToCartButtonState extends State<_AddToCartButton> with SingleTickerProviderStateMixin {
-  late AnimationController _animController;
-  late Animation<double> _scaleAnimation;
+class _AddToCartButtonState extends State<_AddToCartButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scale;
 
   @override
   void initState() {
     super.initState();
-    _animController = AnimationController(
+    _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 100),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeIn),
+    _scale = Tween<double>(begin: 1.0, end: 0.92).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
     );
   }
 
   @override
   void dispose() {
-    _animController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return ScaleTransition(
-      scale: _scaleAnimation,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF1E2022),
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          minimumSize: Size.zero,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-        onPressed: () async {
-          _animController.forward().then((_) => _animController.reverse());
-          
-          final cart = Provider.of<CartProvider>(context, listen: false);
-          cart.addItem(widget.product);
-
-          ScaffoldMessenger.of(context).clearSnackBars();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${widget.product.name} added to cart!'),
-              duration: const Duration(seconds: 1),
-              backgroundColor: const Color(0xFFD81B60),
-            ),
-          );
+      scale: _scale,
+      child: OutlinedButton(
+        onPressed: () {
+          _controller.forward().then((_) => _controller.reverse());
+          widget.onPressed();
         },
+        style: OutlinedButton.styleFrom(
+          foregroundColor: _kPink,
+          side: const BorderSide(color: _kPink),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          padding: EdgeInsets.zero,
+        ),
         child: const Text(
-          'Add',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          'ADD TO CART',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

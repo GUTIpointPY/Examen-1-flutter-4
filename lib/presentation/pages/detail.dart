@@ -76,7 +76,7 @@ class ProductDetailPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFD81B60).withOpacity(0.08),
+                      color: const Color(0xFFD81B60).withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -241,7 +241,7 @@ class _DetailAddToCartButtonState extends State<_DetailAddToCartButton> with Sin
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFD81B60).withOpacity(0.3),
+                color: const Color(0xFFD81B60).withValues(alpha: 0.3),
                 blurRadius: 16,
                 offset: const Offset(0, 8),
               ),
