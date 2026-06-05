@@ -23,68 +23,80 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF9F9FB),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.chevron_left,
-            color: Color(0xFF1E2022),
-            size: 28,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        title: const Text(
-          'Shopping Cart',
-          style: TextStyle(
-            color: Color(0xFF1E2022),
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-        centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: const Color(0xFFF1F1F3),
-            height: 1.0,
-          ),
-        ),
-      ),
-      body: Consumer<CartProvider>(
-        builder: (context, cartProvider, child) {
-          if (cartProvider.items.isEmpty && _localItems.isEmpty) {
-            return _buildEmptyState(context);
-          }
+    return Consumer<CartProvider>(
+      builder: (context, cartProvider, child) {
+        final hasItems = cartProvider.items.isNotEmpty || _localItems.isNotEmpty;
 
-          return Column(
-            children: [
-              // List of cart items
-              Expanded(
-                child: AnimatedList(
-                  key: _listKey,
-                  initialItemCount: _localItems.length,
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-                  itemBuilder: (context, index, animation) {
-                    // Safe guard for range check during transition
-                    if (index >= _localItems.length) return const SizedBox.shrink();
-                    final item = _localItems[index];
-                    return _buildCartItemCard(item, index, animation, cartProvider);
-                  },
-                ),
+        return Scaffold(
+          backgroundColor: const Color(0xFFF9F9FB),
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(
+                Icons.chevron_left,
+                color: Color(0xFF1E2022),
+                size: 28,
               ),
-
-              // Bottom Section: Summary & Checkout Button
-              _buildSummarySection(context, cartProvider),
-            ],
-          );
-        },
-      ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            title: const Text(
+              'Shopping Cart',
+              style: TextStyle(
+                color: Color(0xFF1E2022),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            centerTitle: true,
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(1.0),
+              child: Container(
+                color: const Color(0xFFF1F1F3),
+                height: 1.0,
+              ),
+            ),
+          ),
+          body: !hasItems
+              ? _buildEmptyState(context)
+              : SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    children: [
+                      // List of cart items
+                      AnimatedList(
+                        key: _listKey,
+                        initialItemCount: _localItems.length,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                        itemBuilder: (context, index, animation) {
+                          // Safe guard for range check during transition
+                          if (index >= _localItems.length) return const SizedBox.shrink();
+                          final item = _localItems[index];
+                          return _buildCartItemCard(item, index, animation, cartProvider);
+                        },
+                      ),
+                      // Summary Section directly on the page body
+                      _buildSummaryBlock(context, cartProvider),
+                    ],
+                  ),
+                ),
+          bottomNavigationBar: !hasItems
+              ? null
+              : Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                  child: SafeArea(
+                    child: _CheckoutButton(onPressed: () {
+                      _showCheckoutSuccessDialog(context, cartProvider);
+                    }),
+                  ),
+                ),
+        );
+      },
     );
   }
 
@@ -99,7 +111,7 @@ class _CartScreenState extends State<CartScreen> {
           return Transform.scale(
             scale: val,
             child: Opacity(
-              opacity: val,
+              opacity: val.clamp(0.0, 1.0),
               child: child,
             ),
           );
@@ -420,65 +432,42 @@ class _CartScreenState extends State<CartScreen> {
     cartProvider.removeItem(item.id);
   }
 
-  // Summary Section containing calculated prices and Checkout Button
-  Widget _buildSummarySection(BuildContext context, CartProvider cartProvider) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 20,
-            offset: Offset(0, -5),
+  // Summary Section containing calculated prices directly in the scrollable view
+  Widget _buildSummaryBlock(BuildContext context, CartProvider cartProvider) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Subtotal Row
+          _buildSummaryRow('Subtotal', '\$${cartProvider.subtotal.toStringAsFixed(2)}'),
+          const SizedBox(height: 16),
+
+          // Shipping Row
+          _buildSummaryRow('Shipping', '\$${cartProvider.shipping.toStringAsFixed(2)}'),
+          const SizedBox(height: 16),
+
+          // Tax Row
+          _buildSummaryRow('Tax', '\$${cartProvider.tax.toStringAsFixed(2)}'),
+          const SizedBox(height: 20),
+
+          // Custom Dashed Divider
+          const DashedDivider(
+            color: Color(0xFFD4D4D8),
+            height: 1.0,
+            dashWidth: 4.0,
+            dashGap: 3.0,
           ),
+          const SizedBox(height: 20),
+
+          // Total Row
+          _buildSummaryRow(
+            'Total',
+            '\$${cartProvider.total.toStringAsFixed(2)}',
+            isTotal: true,
+          ),
+          const SizedBox(height: 24),
         ],
-      ),
-      padding: const EdgeInsets.only(top: 24.0, left: 24.0, right: 24.0, bottom: 20.0),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Subtotal Row
-            _buildSummaryRow('Subtotal', '\$${cartProvider.subtotal.toStringAsFixed(2)}'),
-            const SizedBox(height: 12),
-
-            // Shipping Row
-            _buildSummaryRow('Shipping', '\$${cartProvider.shipping.toStringAsFixed(2)}'),
-            const SizedBox(height: 12),
-
-            // Tax Row
-            _buildSummaryRow('Tax', '\$${cartProvider.tax.toStringAsFixed(2)}'),
-            const SizedBox(height: 16),
-
-            // Custom Dashed Divider
-            const DashedDivider(
-              color: Color(0xFFD4D4D8),
-              height: 1.0,
-              dashWidth: 4.0,
-              dashGap: 3.0,
-            ),
-            const SizedBox(height: 20),
-
-            // Total Row
-            _buildSummaryRow(
-              'Total',
-              '\$${cartProvider.total.toStringAsFixed(2)}',
-              isTotal: true,
-            ),
-            const SizedBox(height: 24),
-
-            // Animated Scale Checkout Button
-            _CheckoutButton(onPressed: () {
-              // Perform Checkout Action
-              _showCheckoutSuccessDialog(context, cartProvider);
-            }),
-          ],
-        ),
       ),
     );
   }
