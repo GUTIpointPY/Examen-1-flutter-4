@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'presentation/bloc/cart_provider.dart';
-import 'presentation/pages/login_page.dart';
+import 'presentation/pages/shop.dart';
 
 void main() {
   runApp(
@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Roboto',
         useMaterial3: true,
       ),
-      home: const LoginPage(),
+      home: const ShopPage(),
     );
   }
 }
