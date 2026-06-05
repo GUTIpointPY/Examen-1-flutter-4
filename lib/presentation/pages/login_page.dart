@@ -172,276 +172,287 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC), // soft grey background
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Subtle top title to match screen tag if necessary
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: Text(
-                        'login L\'amor',
-                        style: TextStyle(
-                          color: const Color(0xFF1E293B).withValues(alpha: 0.25),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Logo (staggered scale & opacity)
-                  AnimatedBuilder(
-                    animation: _entranceController,
-                    builder: (context, child) {
-                      return Opacity(
-                        opacity: _logoOpacity.value,
-                        child: Transform.scale(
-                          scale: _logoScale.value,
-                          child: Hero(
-                            tag: 'login-logo',
-                            child: const CustomLogo(size: 110),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                ),
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 420),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Subtle top title to match screen tag if necessary
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 24),
+                              child: Text(
+                                'login L\'amor',
+                                style: TextStyle(
+                                  color: const Color(0xFF1E293B).withValues(alpha: 0.25),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 32),
 
-                  // Header titles (staggered slide & opacity)
-                  AnimatedBuilder(
-                    animation: _entranceController,
-                    builder: (context, child) {
-                      return Opacity(
-                        opacity: _titleOpacity.value,
-                        child: Transform.translate(
-                          offset: _titleSlide.value * 100, // amplify motion
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            child: Column(
-                              key: ValueKey<bool>(_isSignIn),
-                              children: [
-                                Text(
-                                  _isSignIn ? 'Welcome Back' : 'Create Account',
-                                  style: const TextStyle(
-                                    color: Color(0xFF1E293B),
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: -0.5,
+                          // Logo (staggered scale & opacity)
+                          AnimatedBuilder(
+                            animation: _entranceController,
+                            builder: (context, child) {
+                              return Opacity(
+                                opacity: _logoOpacity.value,
+                                child: Transform.scale(
+                                  scale: _logoScale.value,
+                                  child: Hero(
+                                    tag: 'login-logo',
+                                    child: const CustomLogo(size: 110),
                                   ),
                                 ),
-                                const SizedBox(height: 8),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 32),
+
+                          // Header titles (staggered slide & opacity)
+                          AnimatedBuilder(
+                            animation: _entranceController,
+                            builder: (context, child) {
+                              return Opacity(
+                                opacity: _titleOpacity.value,
+                                child: Transform.translate(
+                                  offset: _titleSlide.value * 100, // amplify motion
+                                  child: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 300),
+                                    child: Column(
+                                      key: ValueKey<bool>(_isSignIn),
+                                      children: [
+                                        Text(
+                                          _isSignIn ? 'Welcome Back' : 'Create Account',
+                                          style: const TextStyle(
+                                            color: Color(0xFF1E293B),
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.w700,
+                                            letterSpacing: -0.5,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          _isSignIn
+                                              ? 'Sign in to your private account'
+                                              : 'Sign up to start your private account',
+                                          style: const TextStyle(
+                                            color: Color(0xFF64748B),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 36),
+
+                          // Form Container Card
+                          AnimatedBuilder(
+                            animation: _entranceController,
+                            builder: (context, child) {
+                              return Opacity(
+                                opacity: _formOpacity.value,
+                                child: Transform.translate(
+                                  offset: _formSlide.value * 100,
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.02),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: Form(
+                                key: _formKey,
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 350),
+                                  switchInCurve: Curves.easeOutCubic,
+                                  switchOutCurve: Curves.easeInCubic,
+                                  transitionBuilder: (child, animation) {
+                                    final isSignInWidget = child.key == const ValueKey('signin_form');
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: SlideTransition(
+                                        position: Tween<Offset>(
+                                          begin: Offset(isSignInWidget ? -0.06 : 0.06, 0.0),
+                                          end: Offset.zero,
+                                        ).animate(animation),
+                                        child: child,
+                                      ),
+                                    );
+                                  },
+                                  child: _isSignIn ? _buildSignInForm() : _buildSignUpForm(),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+
+                          // Submit Button (staggered fade & custom scale action)
+                          AnimatedBuilder(
+                            animation: _entranceController,
+                            builder: (context, child) {
+                              return Opacity(
+                                opacity: _buttonOpacity.value,
+                                child: child,
+                              );
+                            },
+                            child: GestureDetector(
+                              onTapDown: (_) {
+                                if (!_isLoading) {
+                                  setState(() => _buttonScale = 0.97);
+                                }
+                              },
+                              onTapUp: (_) {
+                                if (!_isLoading) {
+                                  setState(() => _buttonScale = 1.0);
+                                }
+                              },
+                              onTapCancel: () {
+                                setState(() => _buttonScale = 1.0);
+                              },
+                              onTap: _isLoading ? null : _handleSubmit,
+                              child: AnimatedScale(
+                                scale: _buttonScale,
+                                duration: const Duration(milliseconds: 120),
+                                curve: Curves.easeOutBack,
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 54,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE91E63), // hot pink
+                                    borderRadius: BorderRadius.circular(14),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFFE91E63).withValues(alpha: 0.35),
+                                        blurRadius: 16,
+                                        offset: const Offset(0, 6),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Center(
+                                    child: _isLoading
+                                        ? const SizedBox(
+                                            width: 22,
+                                            height: 22,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2.5,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : AnimatedSwitcher(
+                                            duration: const Duration(milliseconds: 200),
+                                            child: Text(
+                                              _isSignIn ? 'Sign In' : 'Sign Up',
+                                              key: ValueKey<bool>(_isSignIn),
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: 0.5,
+                                              ),
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Alternative option navigation (Create Account / Sign In)
+                          AnimatedBuilder(
+                            animation: _entranceController,
+                            builder: (context, child) {
+                              return Opacity(
+                                opacity: _buttonOpacity.value,
+                                child: child,
+                              );
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
                                 Text(
-                                  _isSignIn
-                                      ? 'Sign in to your private account'
-                                      : 'Sign up to start your private account',
+                                  _isSignIn ? "Don't have an account? " : "Already have an account? ",
                                   style: const TextStyle(
                                     color: Color(0xFF64748B),
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
+                                GestureDetector(
+                                  onTap: _toggleFormMode,
+                                  child: const Text(
+                                    'Create one',
+                                    style: TextStyle(
+                                      color: Color(0xFFE91E63),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 36),
+                          const SizedBox(height: 48),
 
-                  // Form Container Card
-                  AnimatedBuilder(
-                    animation: _entranceController,
-                    builder: (context, child) {
-                      return Opacity(
-                        opacity: _formOpacity.value,
-                        child: Transform.translate(
-                          offset: _formSlide.value * 100,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.02),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
+                          // Footer guaranteed billing (staggered fade)
+                          AnimatedBuilder(
+                            animation: _entranceController,
+                            builder: (context, child) {
+                              return Opacity(
+                                opacity: _footerOpacity.value,
+                                child: child,
+                              );
+                            },
+                            child: const Text(
+                              'DISCRETE BILLING & SECURE CONNECTION\nGUARANTEED',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color(0xFF94A3B8), // slate-400
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                                height: 1.5,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      child: Form(
-                        key: _formKey,
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 350),
-                          switchInCurve: Curves.easeOutCubic,
-                          switchOutCurve: Curves.easeInCubic,
-                          transitionBuilder: (child, animation) {
-                            final isSignInWidget = child.key == const ValueKey('signin_form');
-                            return FadeTransition(
-                              opacity: animation,
-                              child: SlideTransition(
-                                position: Tween<Offset>(
-                                  begin: Offset(isSignInWidget ? -0.06 : 0.06, 0.0),
-                                  end: Offset.zero,
-                                ).animate(animation),
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: _isSignIn ? _buildSignInForm() : _buildSignUpForm(),
-                        ),
-                      ),
                     ),
                   ),
-                  const SizedBox(height: 28),
-
-                  // Submit Button (staggered fade & custom scale action)
-                  AnimatedBuilder(
-                    animation: _entranceController,
-                    builder: (context, child) {
-                      return Opacity(
-                        opacity: _buttonOpacity.value,
-                        child: child,
-                      );
-                    },
-                    child: GestureDetector(
-                      onTapDown: (_) {
-                        if (!_isLoading) {
-                          setState(() => _buttonScale = 0.97);
-                        }
-                      },
-                      onTapUp: (_) {
-                        if (!_isLoading) {
-                          setState(() => _buttonScale = 1.0);
-                        }
-                      },
-                      onTapCancel: () {
-                        setState(() => _buttonScale = 1.0);
-                      },
-                      onTap: _isLoading ? null : _handleSubmit,
-                      child: AnimatedScale(
-                        scale: _buttonScale,
-                        duration: const Duration(milliseconds: 120),
-                        curve: Curves.easeOutBack,
-                        child: Container(
-                          width: double.infinity,
-                          height: 54,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE91E63), // hot pink
-                            borderRadius: BorderRadius.circular(14),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFFE91E63).withValues(alpha: 0.35),
-                                blurRadius: 16,
-                                offset: const Offset(0, 6),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: _isLoading
-                                ? const SizedBox(
-                                    width: 22,
-                                    height: 22,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 200),
-                                    child: Text(
-                                      _isSignIn ? 'Sign In' : 'Sign Up',
-                                      key: ValueKey<bool>(_isSignIn),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Alternative option navigation (Create Account / Sign In)
-                  AnimatedBuilder(
-                    animation: _entranceController,
-                    builder: (context, child) {
-                      return Opacity(
-                        opacity: _buttonOpacity.value,
-                        child: child,
-                      );
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          _isSignIn ? "Don't have an account? " : "Already have an account? ",
-                          style: const TextStyle(
-                            color: Color(0xFF64748B),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: _toggleFormMode,
-                          child: const Text(
-                            'Create one',
-                            style: TextStyle(
-                              color: Color(0xFFE91E63),
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 48),
-
-                  // Footer guaranteed billing (staggered fade)
-                  AnimatedBuilder(
-                    animation: _entranceController,
-                    builder: (context, child) {
-                      return Opacity(
-                        opacity: _footerOpacity.value,
-                        child: child,
-                      );
-                    },
-                    child: const Text(
-                      'DISCRETE BILLING & SECURE CONNECTION\nGUARANTEED',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFF94A3B8), // slate-400
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
