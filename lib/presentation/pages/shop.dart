@@ -322,7 +322,7 @@ class _ShopPageState extends State<ShopPage> {
   // ─────────────────────────────────────────────
   Widget _buildCategoryTabs() {
     return Container(
-      color: Colors.white,
+      color: Colors.transparent,
       height: 52,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
