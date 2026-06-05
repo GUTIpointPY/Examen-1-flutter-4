@@ -17,6 +17,7 @@ class Product {
   final String imagePath; // ruta de asset
   final bool isFavorite;
   final bool isSale;
+  final Color imageBgColor;
 
   const Product({
     required this.id,
@@ -27,6 +28,7 @@ class Product {
     required this.imagePath,
     this.isFavorite = false,
     this.isSale = false,
+    required this.imageBgColor,
   });
 
   /// Convierte a CartItem para compatibilidad con CartProvider y DetailPage
@@ -45,48 +47,54 @@ class Product {
 final List<Product> _allProducts = [
   const Product(
     id: '1',
-    name: 'Rose Petal Silk Blindfold',
-    category: 'ACCESSORIES',
-    price: 24.99,
+    name: 'Velvet Touch Wand',
+    category: 'TOYS',
+    price: 49.99,
     imagePath: 'assets/images/rose_blindfold.png',
-    isFavorite: true,
+    imageBgColor: Color(0xFFCBE2D7), // soft light green/teal
   ),
   const Product(
     id: '2',
-    name: 'Scented Soy Massage Candle',
-    category: 'WELLNESS',
-    price: 18.50,
-    imagePath: 'assets/images/soy_candle.png',
+    name: 'Midnight Lace Bodysuit',
+    category: 'LINGERIE',
+    price: 34.50,
+    imagePath: 'assets/images/rose_blindfold.png',
+    imageBgColor: Color(0xFFFFFFFF), // pure white background
+    isFavorite: true,
   ),
   const Product(
     id: '3',
-    name: 'Rose Quartz Roller',
+    name: 'Santal Warming Oil',
     category: 'WELLNESS',
-    price: 22.00,
+    price: 18.00,
     imagePath: 'assets/images/soy_candle.png',
+    imageBgColor: Color(0xFFFDE8C4), // warm yellow background
   ),
   const Product(
     id: '4',
-    name: 'Velvet Touch Set',
-    category: 'ACCESSORIES',
-    price: 49.99,
-    oldPrice: 65.00,
-    imagePath: 'assets/images/rose_blindfold.png',
+    name: 'Silky Rabbit 2.0',
+    category: 'TOYS',
+    price: 55.00,
+    oldPrice: 75.00,
+    imagePath: 'assets/images/soy_candle.png',
+    imageBgColor: Color(0xFF1E1E1E), // black/dark background
     isSale: true,
   ),
   const Product(
     id: '5',
-    name: 'Midnight Musk Oil',
-    category: 'WELLNESS',
-    price: 32.00,
-    imagePath: 'assets/images/soy_candle.png',
+    name: 'Silk Eye Mask',
+    category: 'LINGERIE',
+    price: 19.99,
+    imagePath: 'assets/images/rose_blindfold.png',
+    imageBgColor: Color(0xFFF3F3F5),
   ),
   const Product(
     id: '6',
-    name: 'Silk Eye Mask',
-    category: 'ACCESSORIES',
-    price: 19.99,
-    imagePath: 'assets/images/rose_blindfold.png',
+    name: 'Massage Candle',
+    category: 'WELLNESS',
+    price: 29.99,
+    imagePath: 'assets/images/soy_candle.png',
+    imageBgColor: Color(0xFFF9F1E6),
   ),
 ];
 
@@ -115,7 +123,8 @@ class _ShopPageState extends State<ShopPage> {
 
   final List<String> _categories = [
     'All',
-    'Accessories',
+    'Toys',
+    'Lingerie',
     'Wellness',
   ];
 
@@ -232,13 +241,24 @@ class _ShopPageState extends State<ShopPage> {
       child: Row(
         children: [
           // Logo + Nombre
-          const Icon(Icons.favorite, color: _kPink, size: 26),
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: const BoxDecoration(
+              color: _kPink,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.favorite,
+              color: Colors.white,
+              size: 16,
+            ),
+          ),
           const SizedBox(width: 8),
           const Text(
-            "L'Amour Shop",
+            "L'Amour",
             style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
               color: _kTextDark,
             ),
           ),
@@ -430,15 +450,15 @@ class _ShopPageState extends State<ShopPage> {
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home_filled),
-          label: 'Shop',
+          label: 'Home',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.search),
-          label: 'Search',
+          icon: Icon(Icons.menu),
+          label: 'Catalog',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.shopping_bag_outlined),
-          label: 'Cart',
+          label: 'Orders',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outline),
@@ -500,10 +520,10 @@ class _ProductCard extends StatelessWidget {
                       tag: 'product-image-${product.id}',
                       child: Container(
                         width: double.infinity,
-                        color: const Color(0xFFF5E6D0),
+                        color: product.imageBgColor,
                         child: Image.asset(
                           product.imagePath,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) => Center(
                             child: Icon(
                               Icons.image_outlined,
@@ -550,18 +570,18 @@ class _ProductCard extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.9),
+                          color: Colors.white,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.10),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 4,
                             ),
                           ],
                         ),
                         child: Icon(
                           isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: isFavorite ? _kPink : _kTextGrey,
+                          color: isFavorite ? _kPink : Colors.grey.shade400,
                           size: 18,
                         ),
                       ),
@@ -685,14 +705,14 @@ class _AddToCartButtonState extends State<_AddToCartButton>
   Widget build(BuildContext context) {
     return ScaleTransition(
       scale: _scale,
-      child: OutlinedButton(
+      child: TextButton(
         onPressed: () {
           _controller.forward().then((_) => _controller.reverse());
           widget.onPressed();
         },
-        style: OutlinedButton.styleFrom(
-          foregroundColor: _kPink,
-          side: const BorderSide(color: _kPink),
+        style: TextButton.styleFrom(
+          backgroundColor: const Color(0xFFFCE4EC), // light pink background
+          foregroundColor: _kPink, // deep pink text
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
